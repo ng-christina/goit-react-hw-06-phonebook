@@ -1,24 +1,32 @@
 import style from './ContactList.module.css';
-import PropTypes from 'prop-types';
-import React from 'react';
 import ContactItem from 'components/ContactItem/ContactItem';
+import { useSelector } from 'react-redux';
+import { getFilter, getContacts } from 'redux/selector';
 
-const ContactList = ({ contacts, onDeleteBtn }) => (
-  <ul className={style.conList}>
-    {contacts.map(({ id, name, number }) => (
-      <ContactItem
-        key={id}
-        name={name}
-        number={number}
-        onDeleteBtn={() => onDeleteBtn(id)}
-      />
-    ))}
-  </ul>
-);
+const ContactList = () => {
+  const filter = useSelector(getFilter);
+  const contacts = useSelector(getContacts);
 
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string.isRequired })
-  ),
+  const getFilteredContacts = () => {
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(
+      contact =>
+        contact.name && contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  };
+  const filteredContacts = getFilteredContacts();
+  return (
+    <ul className={style.conList}>
+      {filteredContacts.map(contact => (
+        <ContactItem
+          key={contact.id}
+          id={contact.id}
+          name={contact.name}
+          number={contact.number}
+        />
+      ))}
+    </ul>
+  );
 };
+
 export default ContactList;
